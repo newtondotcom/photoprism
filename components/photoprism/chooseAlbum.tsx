@@ -36,6 +36,7 @@ export default function ChooseAlbum() {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
   const [albumsFetched, setAlbumsFetched] = useState(false);
+  const [albumExists,setAlbumExists] = useState(false);
 
   async function crAlbum() {
     setLoading(true);
@@ -44,6 +45,7 @@ export default function ChooseAlbum() {
       if (newAlbum) {
         await save("album_id", newAlbum.UID);
         router.replace('/sync');
+        setAlbumExists(true);
         setName('');
       }
     } catch (error) {
@@ -82,34 +84,38 @@ export default function ChooseAlbum() {
     fetchData();
   }, []);
 
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Heading>Choose an album</Heading>
-      {albumsFetched && albums.length !== 0 && (
+      if (albumExists) {
+        router.replace('/sync');
+      }
+
+      if (albumsFetched && albums.length !== 0) {
+        return (
         <View>
-          <Select onValueChange={setChoiceEvent}>
-            <SelectTrigger variant="outline" size="md">
-              <SelectInput placeholder="Select option" />
-              <SelectIcon mr="$3">
-                <ChevronDownIcon />
-              </SelectIcon>
-            </SelectTrigger>
-            <SelectPortal>
-              <SelectBackdrop />
-              <SelectContent>
-                <SelectDragIndicatorWrapper>
-                  <SelectDragIndicator />
-                </SelectDragIndicatorWrapper>
-                {albums.map((album) => (
-                  <SelectItem key={album.UID} label={album.Title} value={album.UID} />
-                ))}
-              </SelectContent>
-            </SelectPortal>
-          </Select>
-        </View>
-      )}
-      {albumsFetched && albums.length === 0 && (
-        <View>
+        <Select onValueChange={setChoiceEvent}>
+          <SelectTrigger variant="outline" size="md">
+            <SelectInput placeholder="Select option" />
+            <SelectIcon mr="$3">
+              <ChevronDownIcon />
+            </SelectIcon>
+          </SelectTrigger>
+          <SelectPortal>
+            <SelectBackdrop />
+            <SelectContent>
+              <SelectDragIndicatorWrapper>
+                <SelectDragIndicator />
+              </SelectDragIndicatorWrapper>
+              {albums.map((album) => (
+                <SelectItem key={album.UID} label={album.Title} value={album.UID} />
+              ))}
+            </SelectContent>
+          </SelectPortal>
+        </Select>
+      </View>
+        )
+      }
+      if (albumsFetched && albums.length === 0 ){
+        return (
+          <View>
           <Alert mx="$2.5" action="warning" variant="solid">
             <AlertIcon as={InfoIcon} mr="$3" />
             <AlertText>
@@ -140,12 +146,13 @@ export default function ChooseAlbum() {
             {loading && <Spinner />}
           </Button>
         </View>
-      )}
-      {!albumsFetched && (
-        <View>
-          <Spinner size="large" />
-        </View>
-      )}
-    </View>
-  );
+        )
+      }
+      if (!albumsFetched) {
+        return (
+          <View>
+            <Spinner size="large" />
+          </View>
+          )
+      };
 }
