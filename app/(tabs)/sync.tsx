@@ -37,7 +37,7 @@ export default async function App() {
         const fetchedEndpoint = await getValueFor("endpoint");
         const fetchedToken = await getValueFor("token");
         const fetchedUserId = await getValueFor("user_id");
-        const fetchedAlbumUID = await getValueFor("album_id") | "";
+        const fetchedAlbumUID = await getValueFor("album_id");
         setEndpoint(fetchedEndpoint);
         setToken(fetchedToken);
         setUserId(fetchedUserId);

@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
 import { createAlbum, getAlbums } from '@/scripts/photoprism';
 import { save, getValueFor } from "@/scripts/store";
 import {
-  Heading,
   Alert,
   AlertIcon,
   AlertText,
@@ -25,7 +23,8 @@ import {
   SelectDragIndicator,
   SelectItem,
   ChevronDownIcon,
-  AddIcon
+  AddIcon,
+  View 
 } from '@gluestack-ui/themed';
 import { useRouter } from 'expo-router';
 import { Album } from '@/scripts/types/photoprism';
@@ -113,6 +112,7 @@ export default function ChooseAlbum() {
       </View>
         )
       }
+
       if (albumsFetched && albums.length === 0 ){
         return (
           <View>
@@ -148,6 +148,7 @@ export default function ChooseAlbum() {
         </View>
         )
       }
+
       if (!albumsFetched) {
         return (
           <View>
