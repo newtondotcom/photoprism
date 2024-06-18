@@ -118,6 +118,7 @@ export default async function App() {
     console.log(`Batch size: ${currentBatchSize}, Total time: ${batchDuration}ms, Time per file: ${batchTimePerFile}ms`);
 
     if (batchTimePerFile > previousBatchTimePerFile) {
+      console.log(`###############################Optimal batch size found: ${bestBatchSize}`);
       break;
     } else {
       previousBatchTimePerFile = batchTimePerFile;
