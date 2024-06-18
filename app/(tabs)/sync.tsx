@@ -12,7 +12,8 @@ import {
   Alert,
   AlertIcon,
   AlertText,
-  InfoIcon}
+  InfoIcon,
+  Spinner}
 from '@gluestack-ui/themed';
 
 export default async function App() {
@@ -25,6 +26,7 @@ export default async function App() {
   const [prismAssets, setPrismAssets] = useState([]);
   const [assetsToDelete, setAssetsToDelete] = useState([]);
   const [assetsToUpload, setAssetsToUpload] = useState([]);
+  const [loading, setLoading] = useState(true);
   const count: number = 200;
 
   useEffect(() => {
@@ -43,10 +45,7 @@ export default async function App() {
         console.error("Error fetching constants:", error);
       }
     }
-  
-    fetchConstants();
-  }, []);
-
+    
   async function fetchAssets(){
     // Fetch all assets from the local library
     const assets: Asset[] = await MediaLibrary.getAssetsAsync({ first: 10000 }).then(result => result.assets);
@@ -104,6 +103,14 @@ export default async function App() {
     console.log(`Found ${missingAssets.length} missing assets to upload`);
   }
   }
+  
+    fetchConstants();
+    fetchAssets();
+    fetchPhotoPrism();
+    computeDiff();
+    setLoading(true);
+  }, []);
+
 
   // Delete the assets only present on phone from PhotoPrism
   async function deleteAssets(){
@@ -146,7 +153,6 @@ export default async function App() {
       console.log(`############################### Not optimal batch size: ${bestBatchSize}`);
     }
   }
-
   console.log(`Best batch size: ${bestBatchSize}`);
 
   // Use the best batch size for the final upload
@@ -157,7 +163,6 @@ export default async function App() {
   }
 
   console.log(`Uploaded all missing assets to PhotoPrism album`);
-
   return 'ok';
 }
 
@@ -182,12 +187,21 @@ export default async function App() {
     await uploadPhotoToAlbum([albumUID], assets.assets[0].uri, assets.assets[0], endpoint, token, user_id);
   }
 
+  if (loading){
+    return (
+      <View>
+        <Spinner size="large" />
+        <Text>Récupération des données</Text>
+      </View>
+    )
+  }
   return (
     <View>
       <Text>Photoprism React Native Example</Text>
       <View style={{ marginVertical: 50 }}>
         <Button title="Sync Library" onPress={syncLibrary} />
         <Button title="test" onPress={test} />
+
         <Alert mx="$2.5" action="info" variant="solid">
   <AlertIcon as={InfoIcon} mr="$3" />
   <AlertText>
