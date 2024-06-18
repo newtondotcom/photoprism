@@ -156,6 +156,7 @@ export async function uploadPhotoToAlbum(albumUIDs: Array<string>, photoUri: str
     });
     const ok = response.ok;
     console.log("Upload response : ", ok);
+    return ok;
   } catch (e) {
     console.log(e);
     throw e;
@@ -163,7 +164,7 @@ export async function uploadPhotoToAlbum(albumUIDs: Array<string>, photoUri: str
 }
 
 
-
+// OK
 export async function getAlbumDetails(albumUID: string): Promise<Album | null> {
   let endpoint = await getValueFor('endpoint');
   let token = await getValueFor('token');
