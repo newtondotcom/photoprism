@@ -25,9 +25,9 @@ export default function App() {
     try {
       const assets = await MediaLibrary.getAssetsAsync();
       const asset = assets.assets[1];
-      const uploadPromises = assets.assets.map(async (asset) => {
+      const uploadPromises = assets.assets.map((asset) => {
         const uri = asset.uri;
-        await uploadPhotoToAlbum([albumUId], uri);
+        uploadPhotoToAlbum([albumUId], uri);
       });
       await Promise.all(uploadPromises);
     } catch (error) {
