@@ -1,5 +1,4 @@
-import {useEffect, useState } from "react";
-import { View, Text, Button} from "react-native";
+import React, {useEffect, useState } from "react";
 import * as MediaLibrary from "expo-media-library";
 import {
   uploadPhotoToAlbum,
@@ -13,7 +12,10 @@ import {
   AlertIcon,
   AlertText,
   InfoIcon,
-  Spinner}
+  Spinner,
+  View, 
+  Text,
+  Button}
 from '@gluestack-ui/themed';
 
 export default async function App() {
@@ -190,8 +192,8 @@ export default async function App() {
   if (loading){
     return (
       <View>
-        <Spinner size="large" />
         <Text>Récupération des données</Text>
+        <Spinner size="large" />
       </View>
     )
   }
