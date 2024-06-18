@@ -728,3 +728,38 @@ export interface Album {
     UpdatedAt?: string
     DeletedAt?: string
 }
+
+
+export enum PhotoPrismOrder {
+  NEWEST = 'newest',
+  OLDEST = 'oldest',
+  FAVORITES = 'favorites',
+  NAME = 'name',
+  PLACE = 'place'
+}
+
+export interface PhotoPrismMergedPhoto {
+  uid: string;
+  hash: string;
+  width: number;
+  height: number;
+  takenAtLocal: string;
+  type: string;
+  title: string;
+  files: File[];
+  cameraMake?: string | null;
+  favorite: boolean;
+  quality: number;
+}
+
+export interface GetPhotosParams {
+  count: number;
+  offset: number;
+  order?: PhotoPrismOrder;
+  public?: boolean;
+  q?: string;
+}
+
+export interface PhotoPrismBatchPhotoUids {
+  photos: string[];
+}
