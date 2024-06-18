@@ -106,7 +106,7 @@ export async function getAlbums(
 }
 
 // OK
-export async function createAlbum(album: Album): Promise<Album> {
+export async function createAlbum(album: string): Promise<Album> {
   let endpoint = await getValueFor("endpoint");
   let token = await getValueFor("token");
 
@@ -120,7 +120,7 @@ export async function createAlbum(album: Album): Promise<Album> {
       body: JSON.stringify(album),
     });
 
-    let responseData = await response.json();
+    let responseData : Album = await response.json();
     const dateCreated = new Date(responseData.CreatedAt);
     const author = responseData.CreatedAt;
     const threshold = 1000 * 60 * 2; // 2 minutes
@@ -211,7 +211,7 @@ export async function getPhotos(
 ): Promise<PhotoPrismMergedPhoto[]> {
   const endpoint = await getValueFor("endpoint");
   const token = await getValueFor("token");
-  let paramsL = { merged: false, ...params };
+  let paramsL = { merged: true, ...params };
   let query_string = new URLSearchParams(paramsL).toString();
   console.log("Query string : ", query_string);
 
@@ -262,10 +262,14 @@ export async function batchAlbumsDelete(albumUIDs: string[]): Promise<void> {
   }
 }
 
+
+//OK
 export async function batchPhotosDelete(photosUIDs: string[]): Promise<void> {
   try {
     const endpoint = await getValueFor("endpoint");
     const token = await getValueFor("token");
+
+    console.log("Photos to delete : ", photosUIDs);
 
     const response = await fetch(`${endpoint}/api/v1/batch/photos/delete`, {
       method: "POST",
@@ -304,12 +308,12 @@ export async function syncLibraryToAlbum() : Promise<string> {
   // Get the whole library on phone
   const assets : Asset[] = await MediaLibrary.getAssetsAsync();
 
-  // Compute the phone deleted items
-  const assetDeleted : Asset[] = ;
+  // Compute the on-phone deleted items
+  const assetDeleted : Asset[] = undefined ;
 
 
   // Compute and upload the missing elements
-  const missingAssets : Asset[] = ;
+  const missingAssets : Asset[] = undefined;
 
   // we need to separate the uploads into batch to not overhead the device 
   let batchSize : number = 5;
