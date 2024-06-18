@@ -28,7 +28,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="main"
+        name="fastlist"
         options={{
           title: "Explore",
           tabBarIcon: ({ color, focused }) => (
@@ -40,9 +40,9 @@ export default function TabLayout() {
         }}
       />
             <Tabs.Screen
-        name="explore"
+        name="sync"
         options={{
-          title: "Explore",
+          title: "Sync",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "code-slash" : "code-slash-outline"}
