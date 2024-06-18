@@ -27,24 +27,23 @@ import {
   ChevronDownIcon,
   AddIcon
 } from '@gluestack-ui/themed';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Album } from '@/scripts/types/photoprism';
 
 export default function ChooseAlbum() {
+  const router = useRouter();
   const [albums, setAlbums] = useState([]);
-  const [choice, setChoice] = useState('');
   const [name, setName] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [albumsFetched, setAlbumsFetched] = useState(false);
-  const [alreadyChosen, setAlreadyChosen] = useState(false);
 
   async function crAlbum() {
     setLoading(true);
     try {
-      const newAlbum : Album = await createAlbum({ title: name });
+      const newAlbum : Album = await createAlbum(name);
       if (newAlbum) {
         await save("album_id", newAlbum.UID);
-        router.push('/sync');
+        router.replace('/sync');
         setName('');
       }
     } catch (error) {
@@ -55,39 +54,32 @@ export default function ChooseAlbum() {
   }
 
   function setChoiceEvent(value: string) {
-    setChoice(value);
     save("album_id", value);
-    router.push('/sync');
+    router.replace('/sync');
   }
 
   useEffect(() => {
-    async function fetchAlbums() {
+    const fetchData = async () => {
       const albumId = await getValueFor("album_id");
       if (albumId !== null && albumId !== "") {
         console.log("Album ID found:", albumId);
-        setAlreadyChosen(true);
+        router.replace('/sync');
       } else {
-      setLoading(true);
       try {
-        const albumsL : Array<Album> = await getAlbums();
+        const albumsLocal : Array<Album> = await getAlbums();
         if (albumsL == null) {
           console.log("No albums found");
+        } else {
+          setAlbums(albumsLocal);
         }
-        setAlbums(albumsL);
       } catch (error) {
         console.error('Error fetching albums:', error);
       }
     }
-        setAlbumsFetched(true);
-        setLoading(false);
+    setAlbumsFetched(true);
+    setLoading(false);
     }
-    fetchAlbums();
-    if (alreadyChosen) {
-      console.log("Album already chosen");
-      router.replace('/sync');
-    } else {
-      console.log("No album chosen");
-    }
+    fetchData();
   }, []);
 
   return (
