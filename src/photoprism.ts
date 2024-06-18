@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import dayjs from 'dayjs';
-import { Album } from '@/src/types';
+import { Album, GenerateTokenResponse, PhotoPrismOrder,GetPhotosParams, PhotoPrismMergedPhoto } from '@/src/types';
 import { save, getValueFor } from '@/src/store';
 
 // OK - manque test dynamique token
@@ -41,7 +41,7 @@ export async function getToken() {
       throw e;
     }
 
-    let responseData = await response.json();
+    let responseData : GenerateTokenResponse = await response.json();
 
     var now = dayjs();
     token_expiry_time = now.add(responseData.expires_in, 'second').toString();
@@ -64,15 +64,16 @@ export async function getToken() {
 }
 
 
+// OK
 export async function getAlbums(count: Number = 24, offset: Number = 0, type: string = "album"): Promise<Album[] | null> {
-  let endpoint = await getValueFor('endpoint');
-  let token = await getValueFor('token');
+  const endpoint = await getValueFor('endpoint');
+  const token = await getValueFor('token');
 
-  let query_object = { count: count.toString(), offset: offset.toString(), type };
+  let query_object = { count: count.toString(), offset: offset.toString(), type , order : PhotoPrismOrder.NEWEST , q : null };
   let query_string = new URLSearchParams(query_object).toString();
-  //?${query_string}
+  console.log("Query string : ", query_string);
   try {
-    let response = await fetch(`${endpoint}/api/v1/albums`, {
+    let response = await fetch(`${endpoint}/api/v1/albums?${query_string}`, {
       method: 'GET',
       headers: {
         'X-Auth-Token': token
@@ -80,7 +81,7 @@ export async function getAlbums(count: Number = 24, offset: Number = 0, type: st
     });
 
     let responseData = await response.json();
-    console.log("Albums récupérés : ", responseData);
+    const albums : Album[] = responseData;
     return responseData;
   } catch (e) {
     console.log(e);
@@ -118,6 +119,7 @@ export async function createAlbum(album: Album): Promise<Album> {
   }
 }
 
+// OK
 export async function uploadPhotoToAlbum(albumUIDs: Array<string>, photoUri: string): Promise<Boolean> {
   let endpoint = await getValueFor('endpoint');
   let token = await getValueFor('token');
@@ -158,4 +160,56 @@ export async function uploadPhotoToAlbum(albumUIDs: Array<string>, photoUri: str
     console.log(e);
     throw e;
   }
+}
+
+
+
+export async function getAlbumDetails(albumUID: string): Promise<Album | null> {
+  let endpoint = await getValueFor('endpoint');
+  let token = await getValueFor('token');
+
+  try {
+    let response = await fetch(`${endpoint}/api/v1/albums/${albumUID}`, {
+      method: 'GET',
+      headers: {
+        'X-Auth-Token': token
+      }
+    });
+
+    let responseData = await response.json();
+    console.log("Album details : ", responseData);
+    return responseData;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+// OK
+export async function getPhotos(params: GetPhotosParams): Promise<PhotoPrismMergedPhoto[]> {
+  const endpoint = await getValueFor('endpoint');
+  const token = await getValueFor('token');
+  let paramsL = { merged : true, primary : false, ...params}
+  if (paramsL.q == null) {
+    delete paramsL.q;
+  }
+  let query_string = new URLSearchParams(paramsL).toString();
+  console.log("Query string : ", query_string);
+
+  const response = await fetch(`${endpoint}/api/v1/photos?${query_string}`.toString(), {
+      method: 'GET',
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token
+      }
+  });
+
+  if (!response.ok) {
+      throw new Error('Network response was not ok');
+  }
+
+  const data: PhotoPrismMergedPhoto[] = await response.json();
+  console.log("Photos : ", data.length);
+  return data;
 }
