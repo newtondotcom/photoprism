@@ -36,24 +36,7 @@ export default function ChooseAlbum() {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [albumsFetched, setAlbumsFetched] = useState(false);
-
-  async function fetchAlbums() {
-    const albumId = await getValueFor("album_id");
-    if (albumId !== null && albumId !== "") {
-      router.push('/sync');
-    }
-    setLoading(true);
-    try {
-      const albumsL : Array<Album> = await getAlbums();
-      setAlbums(albumsL);
-      //console.log(albumsL);
-    } catch (error) {
-      console.error('Error fetching albums:', error);
-    } finally {
-      setAlbumsFetched(true);
-      setLoading(false);
-    }
-  }
+  const [alreadyChosen, setAlreadyChosen] = useState(false);
 
   async function crAlbum() {
     setLoading(true);
@@ -78,11 +61,37 @@ export default function ChooseAlbum() {
   }
 
   useEffect(() => {
+    async function fetchAlbums() {
+      const albumId = await getValueFor("album_id");
+      if (albumId !== null && albumId !== "") {
+        console.log("Album ID found:", albumId);
+        setAlreadyChosen(true);
+      } else {
+      setLoading(true);
+      try {
+        const albumsL : Array<Album> = await getAlbums();
+        if (albumsL == null) {
+          console.log("No albums found");
+        }
+        setAlbums(albumsL);
+      } catch (error) {
+        console.error('Error fetching albums:', error);
+      }
+    }
+        setAlbumsFetched(true);
+        setLoading(false);
+    }
     fetchAlbums();
+    if (alreadyChosen) {
+      console.log("Album already chosen");
+      router.push('/sync');
+    } else {
+      console.log("No album chosen");
+    }
   }, []);
 
   return (
-    <View>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Heading>Choose an album</Heading>
       {albumsFetched && albums.length !== 0 && (
         <View>
