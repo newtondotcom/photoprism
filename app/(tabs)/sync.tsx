@@ -11,11 +11,33 @@ import { PhotoPrismOrder, SearchPhotos } from "@/scripts/types/photoprism";
 
 export default async function App() {
 
+  const [endpoint, setEndpoint] = useState("");
+  const [token, setToken] = useState("");
+  const [user_id, setUserId] = useState("");
+  const [albumUID, setAlbumUID] = useState("");
 
-  const endpoint = await getValueFor("endpoint");
-  const token = await getValueFor("token");
-  const user_id = await getValueFor("user_id");
-  const albumUID: string = await getValueFor('albumUID');
+  useEffect(() => {
+    async function fetchConstants() {
+      try {
+        const fetchedEndpoint = await getValueFor("endpoint");
+        const fetchedToken = await getValueFor("token");
+        const fetchedUserId = await getValueFor("user_id");
+        const fetchedAlbumUID = await getValueFor("album_id");
+        
+        // Update state with fetched values
+        setEndpoint(fetchedEndpoint);
+        setToken(fetchedToken);
+        setUserId(fetchedUserId);
+        setAlbumUID(fetchedAlbumUID);
+        console.log("Fetched constants:", fetchedEndpoint, fetchedToken, fetchedUserId, fetchedAlbumUID);
+      } catch (error) {
+        console.error("Error fetching constants:", error);
+      }
+    }
+  
+    fetchConstants();
+  }, []);
+  
 
   async function syncLibraryToAlbum(): Promise<string> {
   const count: number = 200;
