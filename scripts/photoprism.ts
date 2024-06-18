@@ -9,7 +9,7 @@ import {
 import { save, getValueFor } from "@/scripts/store";
 import { SearchPhotos } from "./types/photoprism";
 import * as MediaLibrary from "expo-media-library";
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 import { Asset } from "./types/expo";
 
 // OK - manque test dynamique token
@@ -121,7 +121,7 @@ export async function createAlbum(album: string): Promise<Album> {
       body: JSON.stringify(album),
     });
 
-    let responseData : Album = await response.json();
+    let responseData: Album = await response.json();
     const dateCreated = new Date(responseData.CreatedAt);
     const author = responseData.CreatedAt;
     const threshold = 1000 * 60 * 2; // 2 minutes
@@ -139,21 +139,19 @@ export async function createAlbum(album: string): Promise<Album> {
 export async function uploadPhotoToAlbum(
   albumUIDs: Array<string>,
   photoUri: string,
-  asset : Asset,
+  asset: Asset,
   endpoint: string,
   token: string,
   user_id: string,
 ): Promise<Boolean> {
-
   const uploadId = (Math.random() + 1).toString(36).substring(6);
   const url = `${endpoint}/api/v1/users/${user_id}/upload/${uploadId}`;
 
-  if (Platform.OS === 'ios') {
+  if (Platform.OS === "ios") {
     const assetInfo = await MediaLibrary.getAssetInfoAsync(asset);
     photoUri = assetInfo.localUri ?? assetInfo.uri;
     //fileUri = assetInfo.localUri ?? assetInfo.uri;
   }
-
 
   console.log("Upload URL : ", photoUri);
   try {
@@ -271,7 +269,6 @@ export async function batchAlbumsDelete(albumUIDs: string[]): Promise<void> {
     throw new Error("Failed to delete albums");
   }
 }
-
 
 //OK
 export async function batchPhotosDelete(photosUIDs: string[]): Promise<void> {

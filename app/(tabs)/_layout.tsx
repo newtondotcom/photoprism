@@ -39,7 +39,7 @@ export default function TabLayout() {
           ),
         }}
       />
-            <Tabs.Screen
+      <Tabs.Screen
         name="sync"
         options={{
           title: "Sync",

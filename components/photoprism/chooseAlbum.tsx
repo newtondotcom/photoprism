@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { createAlbum, getAlbums } from '@/scripts/photoprism';
+import React, { useEffect, useState } from "react";
+import { createAlbum, getAlbums } from "@/scripts/photoprism";
 import { save, getValueFor } from "@/scripts/store";
 import {
   Alert,
@@ -24,31 +24,31 @@ import {
   SelectItem,
   ChevronDownIcon,
   AddIcon,
-  View 
-} from '@gluestack-ui/themed';
-import { useRouter } from 'expo-router';
-import { Album } from '@/scripts/types/photoprism';
+  View,
+} from "@gluestack-ui/themed";
+import { useRouter } from "expo-router";
+import { Album } from "@/scripts/types/photoprism";
 
 export default function ChooseAlbum() {
   const router = useRouter();
   const [albums, setAlbums] = useState([]);
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
   const [albumsFetched, setAlbumsFetched] = useState(false);
-  const [albumExists,setAlbumExists] = useState(false);
+  const [albumExists, setAlbumExists] = useState(false);
 
   async function crAlbum() {
     setLoading(true);
     try {
-      const newAlbum : Album = await createAlbum(name);
+      const newAlbum: Album = await createAlbum(name);
       if (newAlbum) {
         await save("album_id", newAlbum.UID);
-        router.replace('/sync');
+        router.replace("/sync");
         setAlbumExists(true);
-        setName('');
+        setName("");
       }
     } catch (error) {
-      console.error('Error creating album:', error);
+      console.error("Error creating album:", error);
     } finally {
       setLoading(false);
     }
@@ -56,7 +56,7 @@ export default function ChooseAlbum() {
 
   function setChoiceEvent(value: string) {
     save("album_id", value);
-    router.replace('/sync');
+    router.replace("/sync");
   }
 
   useEffect(() => {
@@ -64,32 +64,32 @@ export default function ChooseAlbum() {
       const albumId = await getValueFor("album_id");
       if (albumId !== null && albumId !== "") {
         console.log("Album ID found:", albumId);
-        router.replace('/sync');
+        router.replace("/sync");
       } else {
-      try {
-        const albumsLocal : Array<Album> = await getAlbums();
-        if (albumsL == null) {
-          console.log("No albums found");
-        } else {
-          setAlbums(albumsLocal);
+        try {
+          const albumsLocal: Array<Album> = await getAlbums();
+          if (albumsL == null) {
+            console.log("No albums found");
+          } else {
+            setAlbums(albumsLocal);
+          }
+        } catch (error) {
+          console.error("Error fetching albums:", error);
         }
-      } catch (error) {
-        console.error('Error fetching albums:', error);
       }
-    }
-    setAlbumsFetched(true);
-    setLoading(false);
-    }
+      setAlbumsFetched(true);
+      setLoading(false);
+    };
     fetchData();
   }, []);
 
-      if (albumExists) {
-        router.replace('/sync');
-      }
+  if (albumExists) {
+    router.replace("/sync");
+  }
 
-      if (albumsFetched && albums.length !== 0) {
-        return (
-        <View>
+  if (albumsFetched && albums.length !== 0) {
+    return (
+      <View>
         <Select onValueChange={setChoiceEvent}>
           <SelectTrigger variant="outline" size="md">
             <SelectInput placeholder="Select option" />
@@ -104,56 +104,60 @@ export default function ChooseAlbum() {
                 <SelectDragIndicator />
               </SelectDragIndicatorWrapper>
               {albums.map((album) => (
-                <SelectItem key={album.UID} label={album.Title} value={album.UID} />
+                <SelectItem
+                  key={album.UID}
+                  label={album.Title}
+                  value={album.UID}
+                />
               ))}
             </SelectContent>
           </SelectPortal>
         </Select>
       </View>
-        )
-      }
+    );
+  }
 
-      if (albumsFetched && albums.length === 0 ){
-        return (
-          <View>
-          <Alert mx="$2.5" action="warning" variant="solid">
-            <AlertIcon as={InfoIcon} mr="$3" />
-            <AlertText>
-              It looks like you don't have any albums yet. Please create one.
-            </AlertText>
-          </Alert>
-          <Input
-            variant="outline"
-            size="md"
-            isDisabled={false}
-            isInvalid={false}
-            isReadOnly={false}
-            onChangeText={setName}
-            value={name}
-          >
-            <InputField placeholder="Enter Text here" />
-          </Input>
-          <Button
-            size="md"
-            variant="solid"
-            action="primary"
-            isDisabled={loading}
-            isFocusVisible={false}
-            onPress={crAlbum}
-          >
-            <ButtonText>Create</ButtonText>
-            <ButtonIcon as={AddIcon} />
-            {loading && <Spinner />}
-          </Button>
-        </View>
-        )
-      }
+  if (albumsFetched && albums.length === 0) {
+    return (
+      <View>
+        <Alert mx="$2.5" action="warning" variant="solid">
+          <AlertIcon as={InfoIcon} mr="$3" />
+          <AlertText>
+            It looks like you don't have any albums yet. Please create one.
+          </AlertText>
+        </Alert>
+        <Input
+          variant="outline"
+          size="md"
+          isDisabled={false}
+          isInvalid={false}
+          isReadOnly={false}
+          onChangeText={setName}
+          value={name}
+        >
+          <InputField placeholder="Enter Text here" />
+        </Input>
+        <Button
+          size="md"
+          variant="solid"
+          action="primary"
+          isDisabled={loading}
+          isFocusVisible={false}
+          onPress={crAlbum}
+        >
+          <ButtonText>Create</ButtonText>
+          <ButtonIcon as={AddIcon} />
+          {loading && <Spinner />}
+        </Button>
+      </View>
+    );
+  }
 
-      if (!albumsFetched) {
-        return (
-          <View>
-            <Spinner size="large" />
-          </View>
-          )
-      };
+  if (!albumsFetched) {
+    return (
+      <View>
+        <Spinner size="large" />
+      </View>
+    );
+  }
 }

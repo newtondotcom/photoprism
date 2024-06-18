@@ -1,7 +1,14 @@
-import { Button, TextInput, View, ActivityIndicator, StyleSheet, Text } from "react-native";
+import {
+  Button,
+  TextInput,
+  View,
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+} from "react-native";
 import { getToken } from "@/scripts/photoprism";
 import { save, getValueFor } from "@/scripts/store";
-import { router } from 'expo-router';
+import { router } from "expo-router";
 import { useState } from "react";
 import * as MediaLibrary from "expo-media-library";
 
@@ -24,14 +31,12 @@ export default function Auth() {
       setConnected(true);
       await getPermission();
       console.log("Connected");
-      router.push('/choose');
+      router.push("/choose");
     } else {
       console.log(result);
     }
     setLoading(false);
   }
-
-
 
   async function getPermission() {
     const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -43,16 +48,16 @@ export default function Auth() {
   if (!connected) {
     return (
       <View style={styles.container}>
-        <TextInput 
-          placeholder="Endpoint" 
-          onChangeText={setHost} 
-          value={host} 
+        <TextInput
+          placeholder="Endpoint"
+          onChangeText={setHost}
+          value={host}
           style={styles.input}
         />
-        <TextInput 
-          placeholder="Port" 
-          onChangeText={setPort} 
-          value={port} 
+        <TextInput
+          placeholder="Port"
+          onChangeText={setPort}
+          value={port}
           style={styles.input}
         />
         <TextInput
@@ -88,12 +93,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: {
-    width: '80%',
+    width: "80%",
     padding: 10,
     margin: 10,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
     color: "white",
-  }
+  },
 });
