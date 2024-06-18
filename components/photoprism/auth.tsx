@@ -1,7 +1,7 @@
 import { Button, TextInput, View, ActivityIndicator } from "react-native";
-import { getToken } from "@/src/photoprism";
-import { save, getValueFor } from "@/src/store";
-import { useState } from "react";
+import { getToken } from "@/scripts/photoprism";
+import { save, getValueFor } from "@/scripts/store";
+import { router } from 'expo-router';
 
 export default function Auth() {
   const [host, setHost] = useState("http://10.0.2.2");
@@ -19,6 +19,7 @@ export default function Auth() {
     const result = await getToken();
     if (result == "ok") {
       setConnected(true);
+      router.replace('/login');
     }
     setLoading(false);
   }
