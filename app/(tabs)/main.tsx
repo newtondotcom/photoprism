@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, Image, Alert } from 'react-native';
+import { View, Text, Button, Alert} from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
 import Photoprism from '@/src/photoprism';
 import { Album } from '../../src/types';
