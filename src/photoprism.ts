@@ -1,6 +1,7 @@
 import * as FileSystem from 'expo-file-system';
 import dayjs from 'dayjs';
 import { Album } from './types';
+import { ofetch } from 'ofetch';
 
 export default class Photoprism {
     private endpoint: string;
@@ -30,15 +31,23 @@ export default class Photoprism {
             code: ""
         };
 
-        let response = await fetch(`${this.endpoint}/api/v1/session`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
+        console.log("Token en cours de récupération : ",data);
+        let response;
+        try {
+            response = await ofetch(`${this.endpoint}/api/v1/session`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            console.log("Token en cours de récupération : ",response);
+        } catch (e) {
+            console.log(e)
+        }
 
         let responseData = await response.json();
+        console.log("Token réussi : ",responseData);
 
         var now = dayjs();
         this.token_expiry_time = now.add(responseData.expires_in, 'second').toDate();
@@ -54,7 +63,7 @@ export default class Photoprism {
         let query_object = { count: count.toString(), offset: offset.toString(), type };
         let query_string = new URLSearchParams(query_object).toString();
 
-        let response = await fetch(`${this.endpoint}/api/v1/albums?${query_string}`, {
+        let response = await ofetch(`${this.endpoint}/api/v1/albums?${query_string}`, {
             method: 'GET',
             headers: {
                 'X-Auth-Token': token
@@ -69,7 +78,7 @@ export default class Photoprism {
     public async createAlbum(album: Album): Promise<Album> {
         let token = await this.getToken();
 
-        let response = await fetch(`${this.endpoint}/api/v1/albums`, {
+        let response = await ofetch(`${this.endpoint}/api/v1/albums`, {
             method: 'POST',
             headers: {
                 'X-Auth-Token': token,
@@ -95,8 +104,10 @@ export default class Photoprism {
                 photoUri,
                 {
                     uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+                    /*
                     fieldName: 'file', // Name of the form field
                     mimeType: 'image/jpeg', // or your file type
+                    */
                     parameters: {
                         albums: JSON.stringify(albumUIDs)
                     },
