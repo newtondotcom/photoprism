@@ -1,33 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, Image, Alert } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
-import Photoprism from '../../src/photoprism';
+import Photoprism from '@/src/photoprism';
 import { Album } from '../../src/types';
 
 export default function App () {
   const [albums, setAlbums] = useState<Album[] | null>(null);
   const [album, setAlbum] = useState<Album | null>(null);
 
-  const photoprism = new Photoprism("HOST", "USER", "PASSWORD");
-
-  const createAlbum = async () => {
+  async function createAlbum() {
     const newAlbum = await photoprism.createAlbum({ Title: "test" });
     setAlbum(newAlbum);
   };
 
-  const fetchAlbums = async () => {
+  async function fetchAlbums () {
     const albums = await photoprism.getAlbums();
     setAlbums(albums);
   };
 
-  const getPermission = async () => {
+  async function getPermission (){
     const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status !== 'granted') {
       alert('Sorry, we need camera roll permissions to make this work!');
     }
   };
 
-  const syncLibrary = async () => {
+  async function syncLibrary() {
     if (!album) {
       Alert.alert('Error', 'Please create an album first');
       return;
@@ -48,7 +46,7 @@ export default function App () {
     }
   };
 
-  const test = async () => {
+  async function test () {
     const assets = await MediaLibrary.getAssetsAsync({ mediaType: 'photo' });
     console.log(assets.assets[0]);
     const albums = await photoprism.getAlbums();
