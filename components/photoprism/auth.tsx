@@ -3,10 +3,10 @@ import {getToken} from '@/src/photoprism';
 
 export default function Auth() {
 
-    const [host, setHost] = useState('');
-    const [port, setPort] = useState('');
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [host, setHost] = useState('http://localhost');
+    const [port, setPort] = useState(2342);
+    const [username, setUsername] = useState('admin');
+    const [password, setPassword] = useState('insecure');
     const [connected, setConnected] = useState(false);
     const [loading, setLoading] = useState(false);
 
