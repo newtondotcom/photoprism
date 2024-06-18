@@ -737,7 +737,7 @@ export type GenerateTokenResponse = {
     PLACE = "place",
   }
   
-  interface PhotoPrismFile {
+  export interface PhotoPrismFile {
     AspectRatio: number;
     Chroma: number;
     Codec: string;
@@ -764,7 +764,7 @@ export type GenerateTokenResponse = {
     Width: number;
   }
   
-  interface PhotoPrismMergedPhoto {
+  export interface PhotoPrismMergedPhoto {
     Altitude: number;
     CameraID: number;
     CameraMake: string;
