@@ -286,3 +286,40 @@ export async function batchPhotosDelete(photosUIDs: string[]): Promise<void> {
     throw new Error("Failed to delete albums");
   }
 }
+
+
+
+export async function syncLibraryToAlbum() : Promise<string> {
+  const albumUID : string = await getValueFor('albumUID');
+  let photos: PhotoPrismMergedPhoto[];
+  const count : number = 200;
+  // Get the saved photos on PhotoPrism from the albums
+  const params : SearchPhotos = { count : count, offset:  0, order : PhotoPrismOrder.NEWEST, public : false, s : albumUID};
+  const photosFetched: PhotoPrismMergedPhoto[]= await getPhotos(params);
+  photos.push(...photosFetched);
+  if (photosFetched.length < count) {
+    console.log("No more files to fetch")
+  }
+
+  // Get the whole library on phone
+  const assets : Asset[] = await MediaLibrary.getAssetsAsync();
+
+  // Compute the phone deleted items
+  const assetDeleted : Asset[] = ;
+
+
+  // Compute and upload the missing elements
+  const missingAssets : Asset[] = ;
+
+  // we need to separate the uploads into batch to not overhead the device 
+  let batchSize : number = 5;
+  for (let index = 0; index < missingAssets.length; index++) {
+    let batchAssets : Asset[] = missingAssets.slice(index*batchSize,(index+1)*batchSize)
+    const uploadPromises = batchAssets.map((asset) => {
+      const uri = asset.uri;
+      uploadPhotoToAlbum([albumUID], uri);
+    });
+    await Promise.all(uploadPromises);
+  } 
+  
+}
