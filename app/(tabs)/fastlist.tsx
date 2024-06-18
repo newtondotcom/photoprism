@@ -11,7 +11,7 @@ const DATA = [
   },
 ];
 
-export default function MyList () {
+export default function MyList() {
   return (
     <FlashList
       data={DATA}
@@ -19,4 +19,4 @@ export default function MyList () {
       estimatedItemSize={200}
     />
   );
-};
+}
