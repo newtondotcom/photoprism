@@ -84,7 +84,7 @@ export default function ChooseAlbum() {
     fetchAlbums();
     if (alreadyChosen) {
       console.log("Album already chosen");
-      router.push('/sync');
+      router.replace('/sync');
     } else {
       console.log("No album chosen");
     }
