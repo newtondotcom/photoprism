@@ -213,3 +213,29 @@ export async function getPhotos(params: GetPhotosParams): Promise<PhotoPrismMerg
   console.log("Photos : ", data.length);
   return data;
 }
+
+//ok
+export async function batchAlbumsDelete(albumUIDs: string[]): Promise<void> {
+  try {
+    const endpoint = await getValueFor('endpoint');
+    const token = await getValueFor('token');
+
+    const response = await fetch(`${endpoint}/api/v1/batch/albums/delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token
+      },
+      body: JSON.stringify({ albums: albumUIDs })
+    });
+
+    if (response.ok) {
+      console.log('Albums deleted successfully');
+    } else {
+      throw new Error('Failed to delete albums');
+    }
+  } catch (error) {
+    console.error('Error deleting albums:', error);
+    throw new Error('Failed to delete albums');
+  }
+}
