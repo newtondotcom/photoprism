@@ -8,8 +8,8 @@ import {
   getAlbumDetails,
   getPhotos,
   batchAlbumsDelete,
-} from "@/src/photoprism";
-import { Album, GetPhotosParams, PhotoPrismOrder } from "../../src/types";
+} from "@/scripts/photoprism";
+import { AlbumExpo, Asset ,PagedInfo} from "@/scripts/types/expo";
 
 export default function App() {
   async function getPermission() {
@@ -23,7 +23,7 @@ export default function App() {
     const albumUId = "asfamjvhl60erzg6";
 
     try {
-      const assets = await MediaLibrary.getAssetsAsync({ mediaType: "photo" });
+      const assets = await MediaLibrary.getAssetsAsync();
       const asset = assets.assets[1];
       const uploadPromises = assets.assets.map(async (asset) => {
         const uri = asset.uri;
@@ -36,7 +36,7 @@ export default function App() {
   }
 
   async function test() {
-    const assets = await MediaLibrary.getAssetsAsync({ mediaType: "photo" });
+    const assets : PagedInfo<Asset> = await MediaLibrary.getAssetsAsync();
     // console.log(assets.assets[0]); -> OK
     //await createAlbum({ Title: "test2"}); //-> OK
     //const albums = await getAlbums(); -> OK
