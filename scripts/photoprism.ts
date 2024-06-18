@@ -9,6 +9,7 @@ import {
 import { save, getValueFor } from "@/scripts/store";
 import { SearchPhotos } from "./types/photoprism";
 import * as MediaLibrary from "expo-media-library";
+import { Platform } from 'react-native';
 import { Asset } from "./types/expo";
 
 // OK - manque test dynamique token
@@ -138,14 +139,23 @@ export async function createAlbum(album: string): Promise<Album> {
 export async function uploadPhotoToAlbum(
   albumUIDs: Array<string>,
   photoUri: string,
+  asset : Asset,
+  endpoint: string,
+  token: string,
+  user_id: string,
 ): Promise<Boolean> {
-  let endpoint = await getValueFor("endpoint");
-  let token = await getValueFor("token");
-  let user_id = await getValueFor("user_id");
 
   const uploadId = (Math.random() + 1).toString(36).substring(6);
   const url = `${endpoint}/api/v1/users/${user_id}/upload/${uploadId}`;
 
+  if (Platform.OS === 'ios') {
+    const assetInfo = await MediaLibrary.getAssetInfoAsync(asset);
+    photoUri = assetInfo.localUri ?? assetInfo.uri;
+    //fileUri = assetInfo.localUri ?? assetInfo.uri;
+  }
+
+
+  console.log("Upload URL : ", photoUri);
   try {
     const uploadTask = FileSystem.createUploadTask(
       url,
@@ -153,7 +163,7 @@ export async function uploadPhotoToAlbum(
       {
         uploadType: FileSystem.FileSystemUploadType.MULTIPART,
         fieldName: "files",
-        mimeType: "image/jpeg",
+        mimeType: "image/jpg",
         headers: {
           "X-Auth-Token": token,
           Accept: "application/json",
@@ -344,18 +354,17 @@ export async function syncLibraryToAlbum(): Promise<string> {
     )
   );
 
-  console.log(photos.some(photo =>
-    assets[0].filename.includes(photo.OriginalName)
-  ))
-  console.log(assets[0].filename);
-
-  if (missingAssets.length === 0) {
-    console.log(`Found ${missingAssets.length} missing assets to upload`);
-  } else {
+  if (missingAssets.length === 0 && missingAssets.length === 0) {
     console.log(`No missing assets found`);
     return 'ok';
+  } else {
+    console.log(`Found ${missingAssets.length} missing assets to upload`);
   }
 
+
+  let endpoint = await getValueFor("endpoint");
+  let token = await getValueFor("token");
+  let user_id = await getValueFor("user_id");
 
   // Find the best batch size
   let bestBatchSize = 1;
@@ -368,7 +377,7 @@ export async function syncLibraryToAlbum(): Promise<string> {
 
     for (let i = 0; i < missingAssets.length; i += currentBatchSize) {
       const batchAssets: Asset[] = missingAssets.slice(i, i + currentBatchSize);
-      const uploadPromises = batchAssets.map(asset => uploadPhotoToAlbum([albumUID], asset.uri));
+      const uploadPromises = batchAssets.map(asset => uploadPhotoToAlbum([albumUID], asset.uri, asset , endpoint, token, user_id));
       await Promise.all(uploadPromises);
     }
 
@@ -392,7 +401,7 @@ export async function syncLibraryToAlbum(): Promise<string> {
   // Use the best batch size for the final upload
   for (let i = 0; i < missingAssets.length; i += bestBatchSize) {
     const batchAssets: Asset[] = missingAssets.slice(i, i + bestBatchSize);
-    const uploadPromises = batchAssets.map(asset => uploadPhotoToAlbum([albumUID], asset.uri));
+    const uploadPromises = batchAssets.map(asset => uploadPhotoToAlbum([albumUID], asset.uri, asset , endpoint, token, user_id));
     await Promise.all(uploadPromises);
   }
 
