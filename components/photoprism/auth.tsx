@@ -1,7 +1,8 @@
-import { Button, TextInput, View, ActivityIndicator } from "react-native";
+import { Button, TextInput, View, ActivityIndicator, StyleSheet, Text } from "react-native";
 import { getToken } from "@/scripts/photoprism";
 import { save, getValueFor } from "@/scripts/store";
 import { router } from 'expo-router';
+import { useState } from "react";
 
 export default function Auth() {
   const [host, setHost] = useState("http://10.0.2.2");
@@ -17,27 +18,43 @@ export default function Auth() {
     await save("username", username);
     await save("password", password);
     const result = await getToken();
-    if (result == "ok") {
+    if (result === "ok") {
       setConnected(true);
-      router.replace('/login');
+      console.log("Connected");
+      router.push('/choose');
+    } else {
+      console.log(result);
     }
     setLoading(false);
   }
 
   if (!connected) {
     return (
-      <View>
-        <TextInput placeholder="Endpoint" onChangeText={setHost} value={host} />
-        <TextInput placeholder="Port" onChangeText={setPort} value={port} />
+      <View style={styles.container}>
+        <TextInput 
+          placeholder="Endpoint" 
+          onChangeText={setHost} 
+          value={host} 
+          style={styles.input}
+        />
+        <TextInput 
+          placeholder="Port" 
+          onChangeText={setPort} 
+          value={port} 
+          style={styles.input}
+        />
         <TextInput
           placeholder="Username"
           onChangeText={setUsername}
           value={username}
+          style={styles.input}
         />
         <TextInput
           placeholder="Password"
           onChangeText={setPassword}
           value={password}
+          style={styles.input}
+          secureTextEntry
         />
         {loading && <ActivityIndicator size="small" color="#0000ff" />}
         {!loading && <Button onPress={connect} title="Connect" />}
@@ -45,9 +62,26 @@ export default function Auth() {
     );
   } else {
     return (
-      <View>
+      <View style={styles.container}>
         <Text>You are connected to Photoprism</Text>
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  input: {
+    width: '80%',
+    padding: 10,
+    margin: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    color: "white",
+  }
+});
