@@ -10,6 +10,7 @@ export async function getValueFor(key: string) {
     console.log("🔐 Here's your value 🔐 \n" + result);
     return result;
   } else {
+    return null;
     console.log("No values stored under that key.");
   }
 }
