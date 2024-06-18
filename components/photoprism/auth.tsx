@@ -3,9 +3,11 @@ import { getToken } from "@/scripts/photoprism";
 import { save, getValueFor } from "@/scripts/store";
 import { router } from 'expo-router';
 import { useState } from "react";
+import * as MediaLibrary from "expo-media-library";
 
 export default function Auth() {
-  const [host, setHost] = useState("http://10.0.2.2");
+  // Android host : http://10.0.2.2
+  const [host, setHost] = useState("http://192.168.1.45");
   const [port, setPort] = useState("2342");
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("insecure");
@@ -20,12 +22,22 @@ export default function Auth() {
     const result = await getToken();
     if (result === "ok") {
       setConnected(true);
+      await getPermission();
       console.log("Connected");
       router.push('/choose');
     } else {
       console.log(result);
     }
     setLoading(false);
+  }
+
+
+
+  async function getPermission() {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== "granted") {
+      alert("Sorry, we need camera roll permissions to make this work!");
+    }
   }
 
   if (!connected) {
