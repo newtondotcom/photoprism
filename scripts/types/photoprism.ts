@@ -737,19 +737,95 @@ export type GenerateTokenResponse = {
     PLACE = "place",
   }
   
-  export interface PhotoPrismMergedPhoto {
-    uid: string;
-    hash: string;
-    width: number;
-    height: number;
-    takenAtLocal: string;
-    type: string;
-    title: string;
-    files: File[];
-    cameraMake?: string | null;
-    favorite: boolean;
-    quality: number;
+  interface PhotoPrismFile {
+    AspectRatio: number;
+    Chroma: number;
+    Codec: string;
+    Colors: string;
+    CreatedAt: string;
+    Diff: number;
+    FileType: string;
+    Hash: string;
+    Height: number;
+    Luminance: string;
+    Markers: any[];
+    MediaType: string;
+    Mime: string;
+    Name: string;
+    Orientation: number;
+    OriginalName: string;
+    PhotoUID: string;
+    Portrait: boolean;
+    Primary: boolean;
+    Root: string;
+    Size: number;
+    UID: string;
+    UpdatedAt: string;
+    Width: number;
   }
+  
+  interface PhotoPrismMergedPhoto {
+    Altitude: number;
+    CameraID: number;
+    CameraMake: string;
+    CameraModel: string;
+    CameraSrc: string;
+    CellID: string;
+    CheckedAt: string;
+    Color: number;
+    Country: string;
+    CreatedAt: string;
+    Day: number;
+    Description: string;
+    EditedAt: string;
+    Exposure: string;
+    FNumber: number;
+    Favorite: boolean;
+    FileName: string;
+    FileRoot: string;
+    FileUID: string;
+    Files: PhotoPrismFile[];
+    FocalLength: number;
+    Hash: string;
+    Height: number;
+    ID: string;
+    InstanceID: string;
+    Iso: number;
+    Lat: number;
+    LensID: number;
+    LensModel: string;
+    Lng: number;
+    Merged: boolean;
+    Month: number;
+    Name: string;
+    OriginalName: string;
+    Panorama: boolean;
+    Path: string;
+    PlaceCity: string;
+    PlaceCountry: string;
+    PlaceID: string;
+    PlaceLabel: string;
+    PlaceSrc: string;
+    PlaceState: string;
+    Portrait: boolean;
+    Private: boolean;
+    Quality: number;
+    Resolution: number;
+    Scan: boolean;
+    Stack: number;
+    TakenAt: string;
+    TakenAtLocal: string;
+    TakenSrc: string;
+    TimeZone: string;
+    Title: string;
+    Type: string;
+    TypeSrc: string;
+    UID: string;
+    UpdatedAt: string;
+    Width: number;
+    Year: number;
+  }
+  
   
   export interface SearchPhotos {
     q?: string;              // Query parameter
