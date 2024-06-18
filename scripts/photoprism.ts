@@ -207,7 +207,7 @@ export async function getAlbumDetails(albumUID: string): Promise<Album | null> {
 
 // OK
 export async function getPhotos(
-  params: GetPhotosParams,
+  params: SearchPhotos,
 ): Promise<PhotoPrismMergedPhoto[]> {
   const endpoint = await getValueFor("endpoint");
   const token = await getValueFor("token");
@@ -262,28 +262,27 @@ export async function batchAlbumsDelete(albumUIDs: string[]): Promise<void> {
   }
 }
 
+export async function batchPhotosDelete(photosUIDs: string[]): Promise<void> {
+  try {
+    const endpoint = await getValueFor("endpoint");
+    const token = await getValueFor("token");
 
-export async function syncLibraryToAlbum() : Promise<string> {
-  const albumUID : string = await getValueFor('albumUID');
-  let photos: PhotoPrismMergedPhoto[];
-  const count : number = 200;
-  // Get the saved photos on PhotoPrism from the albums
-  const params : SearchPhotos = { count : count, offset:  0, order : PhotoPrismOrder.NEWEST, public : false, s : albumUID};
-  const photosFetched: PhotoPrismMergedPhoto[]= await getPhotos(params);
-  photos.push(...photosFetched);
-  if (photosFetched.length < count) {
-    console.log("No more files to fetch")
+    const response = await fetch(`${endpoint}/api/v1/batch/photos/delete`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Auth-Token": token,
+      },
+      body: JSON.stringify({ photos: photosUIDs }),
+    });
+
+    if (response.ok) {
+      console.log("Photos deleted successfully");
+    } else {
+      throw new Error("Failed to delete photos");
+    }
+  } catch (error) {
+    console.error("Error deleting albums:", error);
+    throw new Error("Failed to delete albums");
   }
-
-  // Get the whole library on phone
-  const assets : Asset[] = await MediaLibrary.getAssetsAsync();
-
-  // Compute the phone deleted items
-  const assetDeleted = ;
-
-
-  // Compute and upload the missing elements
-  const missingAssets = ;
-
-  
 }
