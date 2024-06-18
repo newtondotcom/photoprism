@@ -105,7 +105,12 @@ export async function createAlbum(album: Album): Promise<Album> {
     });
 
     let responseData = await response.json();
-    console.log("Album créé : ", responseData);
+    const dateCreated = new Date(responseData.CreatedAt);
+    const author = responseData.CreatedAt;
+    const threshold =  1000 * 60 * 2 ; // 2 minutes
+    if (dateCreated.getTime() - new Date().getTime() >threshold) {
+      console.log("Album déjà créé par un autre utilisateur : ", author);
+    }
     return responseData;
   } catch (e) {
     console.log(e);
