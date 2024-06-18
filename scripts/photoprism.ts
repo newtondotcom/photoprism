@@ -24,7 +24,7 @@ export async function getToken() {
   }
 
   if (token && dayjs().isBefore(token_expiry_time)) {
-    return token;
+    return "ok";
   }
 
   try {
@@ -293,37 +293,110 @@ export async function batchPhotosDelete(photosUIDs: string[]): Promise<void> {
 
 
 
-export async function syncLibraryToAlbum() : Promise<string> {
-  const albumUID : string = await getValueFor('albumUID');
-  let photos: PhotoPrismMergedPhoto[];
-  const count : number = 200;
-  // Get the saved photos on PhotoPrism from the albums
-  const params : SearchPhotos = { count : count, offset:  0, order : PhotoPrismOrder.NEWEST, public : false, s : albumUID};
-  const photosFetched: PhotoPrismMergedPhoto[]= await getPhotos(params);
+export async function syncLibraryToAlbum(): Promise<string> {
+  const albumUID: string = await getValueFor('albumUID');
+  const count: number = 200;
+
+  // Initialize photos array
+  let photos: PhotoPrismMergedPhoto[] = [];
+
+  // Fetch the photos from PhotoPrism in the specified album
+  const params: SearchPhotos = { count: count};
+  let photosFetched: PhotoPrismMergedPhoto[] = await getPhotos(params);
   photos.push(...photosFetched);
-  if (photosFetched.length < count) {
-    console.log("No more files to fetch")
+
+  // Keep fetching until all photos are retrieved
+  while (photosFetched.length === count) {
+    const offset = photos.length;
+    params.offset = offset;
+    photosFetched = await getPhotos(params);
+    photos.push(...photosFetched);
+    console.log(`Fetched ${photos.length} photos from PhotoPrism album`);
   }
 
-  // Get the whole library on phone
-  const assets : Asset[] = await MediaLibrary.getAssetsAsync();
+  console.log(`Fetched ${photos.length} photos from PhotoPrism album`);
 
-  // Compute the on-phone deleted items
-  const assetDeleted : Asset[] = undefined ;
+  // Fetch all assets from the local library
+  const assets: Asset[] = await MediaLibrary.getAssetsAsync({ first: 10000 }).then(result => result.assets);
+
+  console.log(`Fetched ${assets.length} assets from local library`);
+
+  // Compute the deleted items (assets in PhotoPrism but not on phone)
+  const assetDeleted: PhotoPrismMergedPhoto[] = photos.filter(photo  => 
+    !assets.some(asset => 
+      asset.filename.includes(photo.OriginalName)
+    )
+  );
+  if (assetDeleted.length > 0) {
+    console.log(`Found ${assetDeleted.length} deleted assets`);
+  } else {
+    console.log(`No deleted assets found`);
+  }
+
+  // Delete the missing assets from PhotoPrism
+  const deletedPhotosUIDs: string[] = assetDeleted.map(photo => photo.UID);
+  //await batchPhotosDelete(deletedPhotosUIDs);
+
+  // Compute the missing elements (assets on phone but not in PhotoPrism)
+  const missingAssets: Asset[] = assets.filter(asset =>
+    !photos.some(photo =>
+      asset.filename.includes(photo.OriginalName)
+    )
+  );
+
+  console.log(photos.some(photo =>
+    assets[0].filename.includes(photo.OriginalName)
+  ))
+  console.log(assets[0].filename);
+
+  if (missingAssets.length === 0) {
+    console.log(`Found ${missingAssets.length} missing assets to upload`);
+  } else {
+    console.log(`No missing assets found`);
+    return 'ok';
+  }
 
 
-  // Compute and upload the missing elements
-  const missingAssets : Asset[] = undefined;
+  // Find the best batch size
+  let bestBatchSize = 1;
+  let previousBatchTimePerFile = Infinity;
+  let currentBatchSize = 1;
+  let batchSizeLimit = missingAssets.length;
 
-  // we need to separate the uploads into batch to not overhead the device 
-  let batchSize : number = 5;
-  for (let index = 0; index < missingAssets.length; index++) {
-    let batchAssets : Asset[] = missingAssets.slice(index*batchSize,(index+1)*batchSize)
-    const uploadPromises = batchAssets.map((asset) => {
-      const uri = asset.uri;
-      uploadPhotoToAlbum([albumUID], uri);
-    });
+  while (currentBatchSize <= batchSizeLimit) {
+    const startTime = Date.now();
+
+    for (let i = 0; i < missingAssets.length; i += currentBatchSize) {
+      const batchAssets: Asset[] = missingAssets.slice(i, i + currentBatchSize);
+      const uploadPromises = batchAssets.map(asset => uploadPhotoToAlbum([albumUID], asset.uri));
+      await Promise.all(uploadPromises);
+    }
+
+    const endTime = Date.now();
+    const batchDuration = endTime - startTime;
+    const batchTimePerFile = batchDuration / missingAssets.length;
+
+    console.log(`Batch size: ${currentBatchSize}, Total time: ${batchDuration}ms, Time per file: ${batchTimePerFile}ms`);
+
+    if (batchTimePerFile > previousBatchTimePerFile) {
+      break;
+    } else {
+      previousBatchTimePerFile = batchTimePerFile;
+      bestBatchSize = currentBatchSize;
+      currentBatchSize *= 2;
+    }
+  }
+
+  console.log(`Best batch size: ${bestBatchSize}`);
+
+  // Use the best batch size for the final upload
+  for (let i = 0; i < missingAssets.length; i += bestBatchSize) {
+    const batchAssets: Asset[] = missingAssets.slice(i, i + bestBatchSize);
+    const uploadPromises = batchAssets.map(asset => uploadPhotoToAlbum([albumUID], asset.uri));
     await Promise.all(uploadPromises);
-  } 
-  
+  }
+
+  console.log(`Uploaded all missing assets to PhotoPrism album`);
+
+  return 'ok';
 }
