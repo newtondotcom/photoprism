@@ -121,40 +121,39 @@ export async function createAlbum(album: Album): Promise<Album> {
 export async function uploadPhotoToAlbum(albumUIDs: Array<string>, photoUri: string): Promise<Boolean> {
   let endpoint = await getValueFor('endpoint');
   let token = await getValueFor('token');
-  let user_id = getValueFor('user_id');
+  let user_id = await getValueFor('user_id');
 
   const uploadId = (Math.random() + 1).toString(36).substring(6);
   const url = `${endpoint}/api/v1/users/${user_id}/upload/${uploadId}`;
 
   try {
-    const uploadPromise = new Promise((resolve, reject) => {
       const uploadTask = FileSystem.createUploadTask(
         url,
         photoUri,
         {
           uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-          parameters: {
-            albums: JSON.stringify(albumUIDs)
-          },
+          fieldName: 'files',
+          mimeType: 'image/jpeg',
           headers: {
             'X-Auth-Token': token,
+            'Accept': 'application/json',
           }
         },
         ({ totalBytesSent, totalBytesExpectedToSend }) => {
-          console.log(`Upload progress: ${totalBytesSent} / ${totalBytesExpectedToSend}`);
+          const progress = parseFloat((totalBytesSent / (totalBytesExpectedToSend || 1)).toFixed(2));
         }
       );
+      const result = await uploadTask.uploadAsync();
 
-      uploadTask.then(({ body, status }) => {
-        if (status === 200) {
-          resolve(true);
-        } else {
-          reject(new Error('Upload failed'));
-        }
-      }).catch(reject);
+    let response = await fetch(url, {
+      method: 'PUT',
+      body: JSON.stringify({ albums: albumUIDs }),
+      headers: {
+        'X-Auth-Token': token
+      }
     });
-
-    return uploadPromise;
+    const ok = response.ok;
+    console.log("Upload response : ", ok);
   } catch (e) {
     console.log(e);
     throw e;
