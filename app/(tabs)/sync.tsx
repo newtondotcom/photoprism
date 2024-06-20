@@ -153,7 +153,6 @@ export default async function App() {
       const uploadPromises = batchAssets.map((asset) =>
         uploadPhotoToAlbum(
           [albumUID],
-          asset.uri,
           asset,
           endpoint,
           token,
@@ -193,7 +192,6 @@ export default async function App() {
       const uploadPromises = batchAssets.map((asset) =>
         uploadPhotoToAlbum(
           [albumUID],
-          asset.uri,
           asset,
           endpoint,
           token,
@@ -227,7 +225,6 @@ export default async function App() {
     //await batchPhotosDelete([photoid]);
     await uploadPhotoToAlbum(
       [albumUID],
-      assets.assets[0].uri,
       assets.assets[0],
       endpoint,
       token,

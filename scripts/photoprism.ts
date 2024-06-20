@@ -138,7 +138,6 @@ export async function createAlbum(album: string): Promise<Album> {
 // OK
 export async function uploadPhotoToAlbum(
   albumUIDs: Array<string>,
-  photoUri: string,
   asset: Asset,
   endpoint: string,
   token: string,
@@ -147,10 +146,13 @@ export async function uploadPhotoToAlbum(
   const uploadId = (Math.random() + 1).toString(36).substring(6);
   const url = `${endpoint}/api/v1/users/${user_id}/upload/${uploadId}`;
 
+  let photoUri : string;
+
   if (Platform.OS === "ios") {
     const assetInfo = await MediaLibrary.getAssetInfoAsync(asset);
     photoUri = assetInfo.localUri ?? assetInfo.uri;
-    //fileUri = assetInfo.localUri ?? assetInfo.uri;
+  } else {
+    photoUri = asset.uri;
   }
 
   console.log("Upload URL : ", photoUri);
