@@ -64,7 +64,6 @@ export default function ChooseAlbum() {
       const albumId = await getValueFor("album_id");
       if (albumId !== null && albumId !== "") {
         console.log("Album ID found:", albumId);
-        router.replace("/sync");
       } else {
         try {
           const albumsLocal: Array<Album> = await getAlbums();
